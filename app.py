@@ -2,14 +2,16 @@
 FastAPI Application for TikTok Metrics AI Agent
 """
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import uvicorn
 from datetime import datetime
 import json
+import os
 
 from src.config.config import settings
 from src.logger.logger import logger
@@ -32,6 +34,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialize components
 kpi_orchestrator = KPIOrchestrator()
@@ -142,13 +147,19 @@ class AnalysisResponse(BaseModel):
 
 # API Endpoints
 @app.get("/", response_class=HTMLResponse)
-async def root():
-    """Root endpoint with API documentation"""
+async def dashboard():
+    """Serve the interactive dashboard"""
+    return FileResponse("templates/dashboard.html")
+
+
+@app.get("/api", response_class=HTMLResponse)
+async def api_docs():
+    """API documentation page"""
     html_content = """
     <!DOCTYPE html>
     <html>
     <head>
-        <title>TikTok Metrics AI Agent</title>
+        <title>TikTok Metrics AI Agent - API Documentation</title>
         <style>
             body { font-family: Arial, sans-serif; margin: 40px; }
             .header { color: #2c3e50; }
@@ -158,7 +169,7 @@ async def root():
         </style>
     </head>
     <body>
-        <h1 class="header">TikTok Metrics AI Agent</h1>
+        <h1 class="header">TikTok Metrics AI Agent - API Documentation</h1>
         <p>Professional demo implementation of KPI algorithm optimization and revenue optimization AI pipeline</p>
         
         <div class="section">
@@ -217,6 +228,15 @@ async def root():
                 <li>Reach Visibility: 3%</li>
                 <li>Cost Efficiency: 3%</li>
             </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Quick Links</h2>
+            <p>
+                <a href="/">📊 Interactive Dashboard</a> | 
+                <a href="/docs">📚 Swagger UI</a> | 
+                <a href="/health">❤️ Health Check</a>
+            </p>
         </div>
     </body>
     </html>
