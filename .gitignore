@@ -1,0 +1,73 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.pdb
+*.so
+*.egg
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+*.env
+*.venv
+
+# --- FastAPI / App ---
+# Ignore environment files
+.env
+.env.*
+# Ignore SQLite DBs if used
+*.db
+*.sqlite3
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Build / Packaging ---
+build/
+dist/
+pip-wheel-metadata/
+*.whl
+
+# --- Testing ---
+.coverage
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+htmlcov/
+
+# --- Jupyter / IPython ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- Editor / OS Files ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+*.pid
+*.sock
+docker-compose.override.yml
+
+# --- Uvicorn / Gunicorn ---
+*.pid
+*.sock
+*.log
+*.coverage
+
+# --- Optional: Ignore local data dirs ---
+data/
+uploads/
