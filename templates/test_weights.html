@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Weights API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-result { background: #f0f0f0; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Weights API Test</h1>
+    <div id="test-result" class="test-result">Testing API connection...</div>
+    
+    <script>
+        async function testWeightsAPI() {
+            const resultDiv = document.getElementById('test-result');
+            
+            try {
+                console.log('Testing weights API...');
+                const response = await fetch('/weights/api');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                resultDiv.className = 'test-result success';
+                resultDiv.innerHTML = `
+                    <h3>✅ API Test Successful!</h3>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Data received:</strong></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <p><a href="/weights">🎨 View Weights Visualization</a></p>
+                `;
+                
+                console.log('API test successful:', data);
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ API Test Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><a href="/weights">🔄 Try Weights Page</a></p>
+                `;
+                
+                console.error('API test failed:', error);
+            }
+        }
+        
+        // Run test when page loads
+        document.addEventListener('DOMContentLoaded', testWeightsAPI);
+    </script>
+</body>
+</html>

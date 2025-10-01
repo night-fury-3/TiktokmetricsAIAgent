@@ -4,7 +4,7 @@ FastAPI Application for TikTok Metrics AI Agent
 
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
@@ -152,6 +152,35 @@ async def dashboard():
     return FileResponse("templates/dashboard.html")
 
 
+@app.get("/weights", response_class=HTMLResponse)
+async def weights_visualization():
+    """Serve the weights visualization page"""
+    return FileResponse("templates/weights_visualization.html")
+
+
+@app.get("/weights/api", response_class=JSONResponse)
+async def get_weights_api():
+    """Get weights data as JSON for API consumption"""
+    return {
+        "weights": settings.KPI_WEIGHTS,
+        "tier_breakdown": {
+            "tier_1": {
+                "kpis": settings.TIER_1_KPIS,
+                "total_weight": sum(settings.KPI_WEIGHTS[kpi] for kpi in settings.TIER_1_KPIS)
+            },
+            "tier_2": {
+                "kpis": settings.TIER_2_KPIS,
+                "total_weight": sum(settings.KPI_WEIGHTS[kpi] for kpi in settings.TIER_2_KPIS)
+            },
+            "tier_3": {
+                "kpis": settings.TIER_3_KPIS,
+                "total_weight": sum(settings.KPI_WEIGHTS[kpi] for kpi in settings.TIER_3_KPIS)
+            }
+        },
+        "algorithm_description": "Multi-tier weighted algorithm prioritizing e-commerce revenue"
+    }
+
+
 @app.get("/api", response_class=HTMLResponse)
 async def api_docs():
     """API documentation page"""
@@ -184,7 +213,11 @@ async def api_docs():
             </div>
             
             <div class="endpoint">
-                <span class="method">GET</span> /weights - Get current KPI weights configuration
+                <span class="method">GET</span> /weights - Algorithm weights visualization (HTML)
+            </div>
+            
+            <div class="endpoint">
+                <span class="method">GET</span> /weights/api - Algorithm weights data (JSON)
             </div>
             
             <div class="endpoint">
@@ -234,6 +267,7 @@ async def api_docs():
             <h2>Quick Links</h2>
             <p>
                 <a href="/">📊 Interactive Dashboard</a> | 
+                <a href="/weights">⚖️ Weights Visualization</a> |
                 <a href="/docs">📚 Swagger UI</a> | 
                 <a href="/health">❤️ Health Check</a>
             </p>
@@ -252,29 +286,6 @@ async def health_check():
         "service": settings.app_name,
         "version": settings.version,
         "timestamp": datetime.now().isoformat()
-    }
-
-
-@app.get("/weights")
-async def get_weights():
-    """Get current KPI weights configuration"""
-    return {
-        "weights": settings.KPI_WEIGHTS,
-        "tier_breakdown": {
-            "tier_1": {
-                "kpis": settings.TIER_1_KPIS,
-                "total_weight": sum(settings.KPI_WEIGHTS[kpi] for kpi in settings.TIER_1_KPIS)
-            },
-            "tier_2": {
-                "kpis": settings.TIER_2_KPIS,
-                "total_weight": sum(settings.KPI_WEIGHTS[kpi] for kpi in settings.TIER_2_KPIS)
-            },
-            "tier_3": {
-                "kpis": settings.TIER_3_KPIS,
-                "total_weight": sum(settings.KPI_WEIGHTS[kpi] for kpi in settings.TIER_3_KPIS)
-            }
-        },
-        "algorithm_description": "Multi-tier weighted algorithm prioritizing e-commerce revenue"
     }
 
 
@@ -442,3 +453,8 @@ if __name__ == "__main__":
         reload=True,
         log_level="info"
     )
+
+@app.get("/test-weights", response_class=HTMLResponse)
+async def test_weights():
+    """Test page for weights API"""
+    return FileResponse("templates/test_weights.html")

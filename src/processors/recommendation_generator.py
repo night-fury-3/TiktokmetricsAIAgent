@@ -21,7 +21,67 @@ class RecommendationGenerator:
         
         # Recommendation templates for different component issues
         self.recommendation_templates = {
-            "funnel_score": {
+            "conversion_rate": {
+                "title": "Boost Sales Conversion Rate",
+                "priority": "high",
+                "cost": "high",
+                "expected_improvement": 0.20,
+                "actions": [
+                    "Implement urgency tactics (limited time offers)",
+                    "Add social proof (customer testimonials)",
+                    "Create product comparison videos",
+                    "Use influencer partnerships",
+                    "Optimize product descriptions and pricing"
+                ],
+                "experiment": {
+                    "type": "A/B Test",
+                    "variants": ["baseline", "conversion_optimized"],
+                    "duration_days": 21,
+                    "primary_metric": "sales_performance_score",
+                    "success_threshold": 0.15
+                }
+            },
+            "cart_abandonment_rate": {
+                "title": "Reduce Cart Abandonment",
+                "priority": "high",
+                "cost": "medium",
+                "expected_improvement": 0.18,
+                "actions": [
+                    "Add exit-intent popup with discount",
+                    "Implement cart recovery email sequence",
+                    "Simplify checkout process",
+                    "Add multiple payment options",
+                    "Show security badges and guarantees"
+                ],
+                "experiment": {
+                    "type": "A/B Test",
+                    "variants": ["baseline", "abandonment_reduction"],
+                    "duration_days": 14,
+                    "primary_metric": "shop_conversion_score",
+                    "success_threshold": 0.12
+                }
+            },
+            "video_quality": {
+                "title": "Enhance Video Quality",
+                "priority": "high",
+                "cost": "low",
+                "expected_improvement": 0.15,
+                "actions": [
+                    "Follow lighting checklist (natural light, avoid backlight)",
+                    "Use stable camera (tripod or gimbal)",
+                    "Follow 15-second product demo template",
+                    "Add clear product close-ups",
+                    "Use trending audio with product focus"
+                ],
+                "experiment": {
+                    "type": "A/B Test",
+                    "variants": ["baseline", "enhanced_quality"],
+                    "duration_days": 10,
+                    "primary_metric": "content_strategy_score",
+                    "success_threshold": 0.06
+                }
+            },
+            "funnel_completion_rate": {
                 "title": "Improve Conversion Funnel",
                 "priority": "high",
                 "cost": "medium",
@@ -61,63 +121,23 @@ class RecommendationGenerator:
                     "success_threshold": 0.08
                 }
             },
-            "video_quality": {
-                "title": "Enhance Video Quality",
-                "priority": "medium",
-                "cost": "low",
-                "expected_improvement": 0.10,
-                "actions": [
-                    "Follow lighting checklist (natural light, avoid backlight)",
-                    "Use stable camera (tripod or gimbal)",
-                    "Follow 15-second product demo template",
-                    "Add clear product close-ups",
-                    "Use trending audio with product focus"
-                ],
-                "experiment": {
-                    "type": "A/B Test",
-                    "variants": ["baseline", "enhanced_quality"],
-                    "duration_days": 10,
-                    "primary_metric": "content_strategy_score",
-                    "success_threshold": 0.06
-                }
-            },
-            "conversion_score": {
-                "title": "Boost Sales Conversion",
-                "priority": "high",
-                "cost": "high",
-                "expected_improvement": 0.20,
-                "actions": [
-                    "Implement urgency tactics (limited time offers)",
-                    "Add social proof (customer testimonials)",
-                    "Create product comparison videos",
-                    "Use influencer partnerships",
-                    "Optimize product descriptions and pricing"
-                ],
-                "experiment": {
-                    "type": "A/B Test",
-                    "variants": ["baseline", "conversion_optimized"],
-                    "duration_days": 21,
-                    "primary_metric": "sales_performance_score",
-                    "success_threshold": 0.15
-                }
-            },
-            "abandonment_score": {
-                "title": "Reduce Cart Abandonment",
+            "tiktok_shop_integration": {
+                "title": "Optimize TikTok Shop Integration",
                 "priority": "high",
                 "cost": "medium",
-                "expected_improvement": 0.18,
+                "expected_improvement": 0.16,
                 "actions": [
-                    "Add exit-intent popup with discount",
-                    "Implement cart recovery email sequence",
-                    "Simplify checkout process",
-                    "Add multiple payment options",
-                    "Show security badges and guarantees"
+                    "Improve product listing quality",
+                    "Add product tags in videos",
+                    "Create shop-specific content",
+                    "Optimize product descriptions",
+                    "Use shop analytics for insights"
                 ],
                 "experiment": {
                     "type": "A/B Test",
-                    "variants": ["baseline", "abandonment_reduction"],
+                    "variants": ["baseline", "shop_optimized"],
                     "duration_days": 14,
-                    "primary_metric": "shop_conversion_score",
+                    "primary_metric": "tiktok_shop_score",
                     "success_threshold": 0.12
                 }
             }
@@ -138,8 +158,8 @@ class RecommendationGenerator:
             kpi_analysis = self.kpi_orchestrator.calculate_overall_score(data)
             insights = self.kpi_orchestrator.get_revenue_optimization_insights(data)
             
-            # Identify bottlenecks using diagnostic model
-            bottlenecks = self._identify_bottlenecks(kpi_analysis)
+            # Identify bottlenecks using improved diagnostic model
+            bottlenecks = self._identify_bottlenecks_improved(data, kpi_analysis)
             
             # Generate recommendations for each bottleneck
             recommendations = []
@@ -172,11 +192,12 @@ class RecommendationGenerator:
             self.logger.error(f"Error generating recommendations: {e}")
             return {"error": str(e), "recommendations": []}
     
-    def _identify_bottlenecks(self, kpi_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _identify_bottlenecks_improved(self, data: Dict[str, Any], kpi_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Identify performance bottlenecks using diagnostic model
+        Improved bottleneck identification using component-level analysis
         
         Args:
+            data: Input data dictionary
             kpi_analysis: KPI analysis results
             
         Returns:
@@ -184,37 +205,88 @@ class RecommendationGenerator:
         """
         bottlenecks = []
         
-        # Check individual KPI scores
-        for kpi_name, score in kpi_analysis["individual_scores"].items():
-            if score < 0.3:  # Low performance threshold
-                weight = settings.KPI_WEIGHTS.get(kpi_name, 0.0)
-                impact = score * weight
-                
-                bottlenecks.append({
-                    "kpi": kpi_name,
-                    "score": score,
-                    "weight": weight,
-                    "impact": impact,
-                    "severity": "high" if score < 0.2 else "medium"
-                })
+        # Component-level bottleneck detection
+        component_issues = self._analyze_component_issues(data)
         
-        # Check component-level bottlenecks
-        for kpi_name, components in kpi_analysis["components"].items():
-            for component_name, component_score in components.items():
-                if isinstance(component_score, (int, float)) and component_score < 0.3:
-                    bottlenecks.append({
-                        "kpi": kpi_name,
-                        "component": component_name,
-                        "score": component_score,
-                        "weight": settings.KPI_WEIGHTS.get(kpi_name, 0.0),
-                        "impact": component_score * settings.KPI_WEIGHTS.get(kpi_name, 0.0),
-                        "severity": "high" if component_score < 0.2 else "medium"
-                    })
+        # Sort by impact (weight * severity)
+        component_issues.sort(key=lambda x: x["impact"], reverse=True)
         
-        # Sort by impact (score * weight)
-        bottlenecks.sort(key=lambda x: x["impact"], reverse=True)
+        return component_issues
+    
+    def _analyze_component_issues(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Analyze specific component issues based on input data
+        """
+        issues = []
         
-        return bottlenecks
+        # Sales Performance Issues
+        if data.get("conversion_rate", 0) < 0.05:  # Low conversion rate
+            issues.append({
+                "kpi": "sales_performance_scorer",
+                "component": "conversion_rate",
+                "score": data.get("conversion_rate", 0),
+                "weight": settings.KPI_WEIGHTS["sales_performance_scorer"],
+                "impact": data.get("conversion_rate", 0) * settings.KPI_WEIGHTS["sales_performance_scorer"],
+                "severity": "high" if data.get("conversion_rate", 0) < 0.02 else "medium"
+            })
+        
+        # Shop Conversion Issues
+        if data.get("cart_abandonment_rate", 0) > 0.6:  # High abandonment
+            issues.append({
+                "kpi": "shop_conversion_scorer",
+                "component": "cart_abandonment_rate",
+                "score": 1 - data.get("cart_abandonment_rate", 0),  # Invert for scoring
+                "weight": settings.KPI_WEIGHTS["shop_conversion_scorer"],
+                "impact": (1 - data.get("cart_abandonment_rate", 0)) * settings.KPI_WEIGHTS["shop_conversion_scorer"],
+                "severity": "high" if data.get("cart_abandonment_rate", 0) > 0.7 else "medium"
+            })
+        
+        if data.get("funnel_completion_rate", 0) < 0.3:  # Low funnel completion
+            issues.append({
+                "kpi": "shop_conversion_scorer",
+                "component": "funnel_completion_rate",
+                "score": data.get("funnel_completion_rate", 0),
+                "weight": settings.KPI_WEIGHTS["shop_conversion_scorer"],
+                "impact": data.get("funnel_completion_rate", 0) * settings.KPI_WEIGHTS["shop_conversion_scorer"],
+                "severity": "high" if data.get("funnel_completion_rate", 0) < 0.2 else "medium"
+            })
+        
+        # TikTok Shop Issues
+        if data.get("listing_quality", 0) < 0.5:  # Poor listing quality
+            issues.append({
+                "kpi": "tiktok_shop_scorer",
+                "component": "tiktok_shop_integration",
+                "score": data.get("listing_quality", 0),
+                "weight": settings.KPI_WEIGHTS["tiktok_shop_scorer"],
+                "impact": data.get("listing_quality", 0) * settings.KPI_WEIGHTS["tiktok_shop_scorer"],
+                "severity": "high" if data.get("listing_quality", 0) < 0.3 else "medium"
+            })
+        
+        # Content Strategy Issues - Prioritize video quality when very low
+        if data.get("video_quality", 0) < 0.4:  # Poor video quality
+            # Boost priority for very low video quality
+            severity_multiplier = 3.0 if data.get("video_quality", 0) < 0.2 else 2.0
+            issues.append({
+                "kpi": "content_strategy_scorer",
+                "component": "video_quality",
+                "score": data.get("video_quality", 0),
+                "weight": settings.KPI_WEIGHTS["content_strategy_scorer"] * severity_multiplier,
+                "impact": data.get("video_quality", 0) * settings.KPI_WEIGHTS["content_strategy_scorer"] * severity_multiplier,
+                "severity": "high" if data.get("video_quality", 0) < 0.2 else "medium"
+            })
+        
+        # Engagement Issues
+        if data.get("interaction_balance", 0) < 0.5:  # Poor interaction balance
+            issues.append({
+                "kpi": "engagement_scorer",
+                "component": "interaction_balance",
+                "score": data.get("interaction_balance", 0),
+                "weight": settings.KPI_WEIGHTS["engagement_scorer"],
+                "impact": data.get("interaction_balance", 0) * settings.KPI_WEIGHTS["engagement_scorer"],
+                "severity": "high" if data.get("interaction_balance", 0) < 0.3 else "medium"
+            })
+        
+        return issues
     
     def _create_recommendation(self, bottleneck: Dict[str, Any], kpi_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -228,12 +300,13 @@ class RecommendationGenerator:
             Recommendation dictionary
         """
         try:
-            # Map bottleneck to recommendation template
-            component = bottleneck.get("component", bottleneck["kpi"])
-            template_key = self._map_component_to_template(component)
+            # Map component to recommendation template
+            component = bottleneck["component"]
+            template_key = component
             
             if template_key not in self.recommendation_templates:
-                return None
+                # Fallback to generic template
+                template_key = "video_quality"
             
             template = self.recommendation_templates[template_key]
             
@@ -271,24 +344,6 @@ class RecommendationGenerator:
             self.logger.error(f"Error creating recommendation: {e}")
             return None
     
-    def _map_component_to_template(self, component: str) -> str:
-        """
-        Map component name to recommendation template key
-        """
-        mapping = {
-            "funnel_score": "funnel_score",
-            "abandonment_score": "abandonment_score",
-            "conversion_score": "conversion_score",
-            "interaction_balance": "interaction_balance",
-            "video_quality": "video_quality",
-            "sales_performance_scorer": "conversion_score",
-            "shop_conversion_scorer": "funnel_score",
-            "engagement_scorer": "interaction_balance",
-            "content_strategy_scorer": "video_quality"
-        }
-        
-        return mapping.get(component, "video_quality")  # Default fallback
-    
     def _calculate_priority_score(self, bottleneck: Dict[str, Any], template: Dict[str, Any]) -> float:
         """
         Calculate priority score for recommendation
@@ -313,16 +368,15 @@ class RecommendationGenerator:
         Calculate confidence in recommendation
         """
         # Base confidence from data quality
-        base_confidence = 0.7
+        base_confidence = 0.8
         
-        # Adjust based on sample size (if available)
-        sample_size = kpi_analysis.get("sample_size", 100)
-        sample_factor = min(1.0, sample_size / 1000.0)
+        # Adjust based on severity (higher severity = higher confidence)
+        severity_factor = 1.2 if bottleneck["severity"] == "high" else 1.0
         
-        # Adjust based on consistency
-        consistency = kpi_analysis.get("consistency_score", 0.5)
+        # Adjust based on impact
+        impact_factor = min(1.5, bottleneck["impact"] * 10)
         
-        return min(0.95, base_confidence * sample_factor * (0.5 + consistency))
+        return min(0.95, base_confidence * severity_factor * impact_factor)
     
     def _estimate_effort(self, cost_level: str) -> int:
         """
@@ -338,6 +392,7 @@ class RecommendationGenerator:
         metrics_map = {
             "sales_performance_scorer": ["conversion_rate", "total_revenue", "avg_order_value"],
             "shop_conversion_scorer": ["funnel_completion_rate", "cart_abandonment_rate"],
+            "tiktok_shop_scorer": ["listing_quality", "product_velocity", "integration_seamlessness"],
             "engagement_scorer": ["likes_ratio", "comments_ratio", "shares_ratio"],
             "content_strategy_scorer": ["video_quality", "content_freshness"]
         }
