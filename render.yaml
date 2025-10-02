@@ -1,0 +1,29 @@
+# Render.com deployment configuration
+services:
+  - type: web
+    name: tiktok-metrics-ai-agent
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: BASE_URL
+        value: https://tiktok-metrics-ai-agent.onrender.com
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: $PORT
+      - key: APP_NAME
+        value: TikTok Metrics AI Agent
+      - key: VERSION
+        value: 1.0.0
+      - key: DEBUG
+        value: false
+      - key: MODEL_RETRAIN_FREQUENCY_DAYS
+        value: 30
+      - key: MIN_SAMPLES_FOR_TRAINING
+        value: 100
+      - key: MAX_RECOMMENDATIONS
+        value: 3
+      - key: MIN_CONFIDENCE_THRESHOLD
+        value: 0.7
