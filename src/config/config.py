@@ -9,10 +9,13 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings"""
     
-    # API Settings
+    # API Settings - These will be loaded from .env file
     app_name: str = "TikTok Metrics AI Agent"
     version: str = "1.0.0"
     debug: bool = False
+    base_url: str  # Will be loaded from BASE_URL in .env
+    api_host: str  # Will be loaded from API_HOST in .env
+    api_port: int  # Will be loaded from API_PORT in .env
     
     # KPI Weights Configuration (Task 1 - Optimized Weights)
     KPI_WEIGHTS: Dict[str, float] = {
@@ -76,6 +79,7 @@ class Settings(BaseSettings):
     
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 # Global settings instance

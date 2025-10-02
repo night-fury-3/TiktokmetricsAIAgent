@@ -2,7 +2,7 @@
 
 class TikTokMetricsDashboard {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8000';
+        this.apiBaseUrl = window.location.origin;
         this.currentAnalysis = null;
         this.init();
     }

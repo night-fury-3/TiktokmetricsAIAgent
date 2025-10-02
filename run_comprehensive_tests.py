@@ -4,11 +4,12 @@ Tests both Task 1 (Algorithm Optimization) and Task 2 (AI Pipeline)
 """
 
 import requests
+from src.config.config import settings
 import time
 import sys
 from datetime import datetime
 
-def check_api_health(base_url="http://localhost:8000"):
+def check_api_health(base_url=settings.base_url):
     """Check if the API is running and healthy"""
     try:
         response = requests.get(f"{base_url}/health", timeout=5)
@@ -65,7 +66,7 @@ def run_frontend_tests():
     print("🎨 FRONTEND INTEGRATION TESTING")
     print("="*60)
     
-    base_url = "http://localhost:8000"
+    base_url = settings.base_url
     tests_passed = 0
     total_tests = 0
     
@@ -130,7 +131,7 @@ def run_performance_tests():
     print("⚡ PERFORMANCE TESTING")
     print("="*60)
     
-    base_url = "http://localhost:8000"
+    base_url = settings.base_url
     tests_passed = 0
     total_tests = 0
     

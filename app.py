@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import uvicorn
@@ -37,6 +38,7 @@ app.add_middleware(
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 # Initialize components
 kpi_orchestrator = KPIOrchestrator()
@@ -147,9 +149,9 @@ class AnalysisResponse(BaseModel):
 
 # API Endpoints
 @app.get("/", response_class=HTMLResponse)
-async def dashboard():
+async def dashboard(request: Request):
     """Serve the interactive dashboard"""
-    return FileResponse("templates/dashboard.html")
+    return templates.TemplateResponse("dashboard.html", {"request": request, "base_url": settings.base_url})
 
 
 @app.get("/weights", response_class=HTMLResponse)

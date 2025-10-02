@@ -6,10 +6,12 @@ Tests the AI recommendation system and diagnostic capabilities
 import requests
 import json
 from datetime import datetime
+import os
+from src.config.config import settings
 
 class Task2Tester:
-    def __init__(self, base_url="http://localhost:8000"):
-        self.base_url = base_url
+    def __init__(self, base_url=None):
+        self.base_url = base_url or settings.base_url
         self.test_results = []
     
     def test_bottleneck_identification(self):

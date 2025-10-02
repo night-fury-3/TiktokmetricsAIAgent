@@ -5,6 +5,7 @@ Frontend Demo Script for TikTok Metrics AI Agent
 import requests
 import webbrowser
 import time
+from src.config.config import settings
 from datetime import datetime
 
 
@@ -13,7 +14,7 @@ def test_frontend_integration():
     print("🚀 TikTok Metrics AI Agent - Frontend Integration Demo")
     print("=" * 60)
     
-    base_url = "http://localhost:8000"
+    base_url = settings.base_url
     
     # Test API health
     print("\n1. Testing API Health...")
@@ -153,7 +154,7 @@ def show_frontend_features():
         {
             "name": "Interactive Dashboard",
             "description": "Modern, responsive web interface with real-time updates",
-            "url": "http://localhost:8000/"
+            "url": f"{settings.base_url}/"
         },
         {
             "name": "Creator Metrics Form",
@@ -183,7 +184,7 @@ def show_frontend_features():
         {
             "name": "API Documentation",
             "description": "Interactive Swagger UI for API exploration",
-            "url": "http://localhost:8000/docs"
+            "url": f"{settings.base_url}/docs"
         }
     ]
     
