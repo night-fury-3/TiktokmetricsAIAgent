@@ -1,25 +1,14 @@
-"""
-Recommendation Generator - AI Pipeline for Revenue Optimization
-"""
-
 from typing import Dict, Any, List, Tuple
 import numpy as np
 from src.config.config import settings
 from src.logger.logger import logger
 from src.processors.kpi_orchestrator import KPIOrchestrator
 
-
 class RecommendationGenerator:
-    """
-    Generates actionable recommendations for revenue optimization
-    """
-    
     def __init__(self):
-        """Initialize the recommendation generator"""
         self.logger = logger
         self.kpi_orchestrator = KPIOrchestrator()
         
-        # Recommendation templates for different component issues
         self.recommendation_templates = {
             "conversion_rate": {
                 "title": "Boost Sales Conversion Rate",
@@ -144,34 +133,20 @@ class RecommendationGenerator:
         }
     
     def generate_recommendations(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate actionable recommendations for revenue optimization
-        
-        Args:
-            data: Input data dictionary containing all metrics
-            
-        Returns:
-            Dictionary containing prioritized recommendations
-        """
         try:
-            # Get KPI analysis
             kpi_analysis = self.kpi_orchestrator.calculate_overall_score(data)
             insights = self.kpi_orchestrator.get_revenue_optimization_insights(data)
             
-            # Identify bottlenecks using improved diagnostic model
             bottlenecks = self._identify_bottlenecks_improved(data, kpi_analysis)
             
-            # Generate recommendations for each bottleneck
             recommendations = []
             for bottleneck in bottlenecks:
                 recommendation = self._create_recommendation(bottleneck, kpi_analysis)
                 if recommendation:
                     recommendations.append(recommendation)
             
-            # Sort by priority and expected impact
             recommendations.sort(key=lambda x: (x["priority_score"], x["expected_improvement"]), reverse=True)
             
-            # Limit to top recommendations
             top_recommendations = recommendations[:settings.MAX_RECOMMENDATIONS]
             
             result = {
@@ -193,34 +168,18 @@ class RecommendationGenerator:
             return {"error": str(e), "recommendations": []}
     
     def _identify_bottlenecks_improved(self, data: Dict[str, Any], kpi_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """
-        Improved bottleneck identification using component-level analysis
-        
-        Args:
-            data: Input data dictionary
-            kpi_analysis: KPI analysis results
-            
-        Returns:
-            List of identified bottlenecks
-        """
         bottlenecks = []
         
-        # Component-level bottleneck detection
         component_issues = self._analyze_component_issues(data)
         
-        # Sort by impact (weight * severity)
         component_issues.sort(key=lambda x: x["impact"], reverse=True)
         
         return component_issues
     
     def _analyze_component_issues(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """
-        Analyze specific component issues based on input data
-        """
         issues = []
         
-        # Sales Performance Issues
-        if data.get("conversion_rate", 0) < 0.05:  # Low conversion rate
+        if data.get("conversion_rate", 0) < 0.05:
             issues.append({
                 "kpi": "sales_performance_scorer",
                 "component": "conversion_rate",
@@ -230,18 +189,17 @@ class RecommendationGenerator:
                 "severity": "high" if data.get("conversion_rate", 0) < 0.02 else "medium"
             })
         
-        # Shop Conversion Issues
-        if data.get("cart_abandonment_rate", 0) > 0.6:  # High abandonment
+        if data.get("cart_abandonment_rate", 0) > 0.6:
             issues.append({
                 "kpi": "shop_conversion_scorer",
                 "component": "cart_abandonment_rate",
-                "score": 1 - data.get("cart_abandonment_rate", 0),  # Invert for scoring
+                "score": 1 - data.get("cart_abandonment_rate", 0),
                 "weight": settings.KPI_WEIGHTS["shop_conversion_scorer"],
                 "impact": (1 - data.get("cart_abandonment_rate", 0)) * settings.KPI_WEIGHTS["shop_conversion_scorer"],
                 "severity": "high" if data.get("cart_abandonment_rate", 0) > 0.7 else "medium"
             })
         
-        if data.get("funnel_completion_rate", 0) < 0.3:  # Low funnel completion
+        if data.get("funnel_completion_rate", 0) < 0.3:
             issues.append({
                 "kpi": "shop_conversion_scorer",
                 "component": "funnel_completion_rate",
@@ -251,8 +209,7 @@ class RecommendationGenerator:
                 "severity": "high" if data.get("funnel_completion_rate", 0) < 0.2 else "medium"
             })
         
-        # TikTok Shop Issues
-        if data.get("listing_quality", 0) < 0.5:  # Poor listing quality
+        if data.get("listing_quality", 0) < 0.5:
             issues.append({
                 "kpi": "tiktok_shop_scorer",
                 "component": "tiktok_shop_integration",
@@ -262,9 +219,7 @@ class RecommendationGenerator:
                 "severity": "high" if data.get("listing_quality", 0) < 0.3 else "medium"
             })
         
-        # Content Strategy Issues - Prioritize video quality when very low
-        if data.get("video_quality", 0) < 0.4:  # Poor video quality
-            # Boost priority for very low video quality
+        if data.get("video_quality", 0) < 0.4:
             severity_multiplier = 3.0 if data.get("video_quality", 0) < 0.2 else 2.0
             issues.append({
                 "kpi": "content_strategy_scorer",
@@ -275,8 +230,7 @@ class RecommendationGenerator:
                 "severity": "high" if data.get("video_quality", 0) < 0.2 else "medium"
             })
         
-        # Engagement Issues
-        if data.get("interaction_balance", 0) < 0.5:  # Poor interaction balance
+        if data.get("interaction_balance", 0) < 0.5:
             issues.append({
                 "kpi": "engagement_scorer",
                 "component": "interaction_balance",
@@ -289,34 +243,17 @@ class RecommendationGenerator:
         return issues
     
     def _create_recommendation(self, bottleneck: Dict[str, Any], kpi_analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a specific recommendation for a bottleneck
-        
-        Args:
-            bottleneck: Bottleneck information
-            kpi_analysis: KPI analysis results
-            
-        Returns:
-            Recommendation dictionary
-        """
         try:
-            # Map component to recommendation template
             component = bottleneck["component"]
             template_key = component
             
             if template_key not in self.recommendation_templates:
-                # Fallback to generic template
                 template_key = "video_quality"
             
             template = self.recommendation_templates[template_key]
             
-            # Calculate priority score
             priority_score = self._calculate_priority_score(bottleneck, template)
-            
-            # Calculate expected improvement
             expected_improvement = template["expected_improvement"] * (1 - bottleneck["score"])
-            
-            # Calculate confidence
             confidence = self._calculate_confidence(bottleneck, kpi_analysis)
             
             recommendation = {
@@ -345,50 +282,27 @@ class RecommendationGenerator:
             return None
     
     def _calculate_priority_score(self, bottleneck: Dict[str, Any], template: Dict[str, Any]) -> float:
-        """
-        Calculate priority score for recommendation
-        """
-        # Base priority from template
         priority_map = {"high": 3.0, "medium": 2.0, "low": 1.0}
         base_priority = priority_map.get(template["priority"], 1.0)
         
-        # Weight by KPI importance
         weight_factor = bottleneck["weight"] * 2.0
-        
-        # Weight by current performance (lower = higher priority)
         performance_factor = (1.0 - bottleneck["score"]) * 2.0
-        
-        # Weight by severity
         severity_factor = 2.0 if bottleneck["severity"] == "high" else 1.0
         
         return base_priority * weight_factor * performance_factor * severity_factor
     
     def _calculate_confidence(self, bottleneck: Dict[str, Any], kpi_analysis: Dict[str, Any]) -> float:
-        """
-        Calculate confidence in recommendation
-        """
-        # Base confidence from data quality
         base_confidence = 0.8
-        
-        # Adjust based on severity (higher severity = higher confidence)
         severity_factor = 1.2 if bottleneck["severity"] == "high" else 1.0
-        
-        # Adjust based on impact
         impact_factor = min(1.5, bottleneck["impact"] * 10)
         
         return min(0.95, base_confidence * severity_factor * impact_factor)
     
     def _estimate_effort(self, cost_level: str) -> int:
-        """
-        Estimate effort in hours
-        """
         effort_map = {"low": 4, "medium": 12, "high": 24}
         return effort_map.get(cost_level, 8)
     
     def _get_success_metrics(self, kpi: str) -> List[str]:
-        """
-        Get success metrics for a KPI
-        """
         metrics_map = {
             "sales_performance_scorer": ["conversion_rate", "total_revenue", "avg_order_value"],
             "shop_conversion_scorer": ["funnel_completion_rate", "cart_abandonment_rate"],
@@ -400,9 +314,6 @@ class RecommendationGenerator:
         return metrics_map.get(kpi, ["overall_score"])
     
     def _generate_next_steps(self, recommendations: List[Dict[str, Any]]) -> List[str]:
-        """
-        Generate next steps based on recommendations
-        """
         if not recommendations:
             return ["No immediate actions required"]
         

@@ -1,8 +1,3 @@
-"""
-TikTok Metrics AI Agent - Demo Script
-Comprehensive demonstration of Task 1 and Task 2 functionality
-"""
-
 import requests
 import json
 import time
@@ -11,7 +6,6 @@ import os
 from src.config.config import settings
 
 def check_api_health(base_url=None):
-    """Check if the API is running and healthy"""
     base_url = base_url or settings.base_url
     try:
         response = requests.get(f"{base_url}/health", timeout=5)
@@ -24,7 +18,6 @@ def check_api_health(base_url=None):
         return False, f"Connection error: {e}"
 
 def get_demo_data(base_url=None):
-    """Get demo data from the API"""
     base_url = base_url or settings.base_url
     try:
         response = requests.get(f"{base_url}/demo-data", timeout=10)
@@ -36,10 +29,8 @@ def get_demo_data(base_url=None):
         return False, f"Connection error: {e}"
 
 def test_creator_analysis(base_url=None):
-    """Test creator analysis with recommendations"""
     base_url = base_url or settings.base_url
     
-    # Demo creator data
     demo_data = {
         "creator_id": "demo_creator_001",
         "conversion_rate": 0.05,
@@ -77,7 +68,6 @@ def test_creator_analysis(base_url=None):
         return False, f"Connection error: {e}"
 
 def test_algorithm_comparison(base_url=None):
-    """Test algorithm comparison functionality"""
     base_url = base_url or settings.base_url
     
     comparison_data = {
@@ -117,7 +107,6 @@ def test_algorithm_comparison(base_url=None):
         return False, f"Connection error: {e}"
 
 def test_weights_configuration(base_url=None):
-    """Test weights configuration endpoint"""
     base_url = base_url or settings.base_url
     try:
         response = requests.get(f"{base_url}/weights/api", timeout=10)
@@ -129,8 +118,7 @@ def test_weights_configuration(base_url=None):
         return False, f"Connection error: {e}"
 
 def main():
-    """Main demo function"""
-    print("�� TikTok Metrics AI Agent - Demo")
+    print("🚀 TikTok Metrics AI Agent - Demo")
     print("=" * 50)
     print()
     
@@ -138,7 +126,6 @@ def main():
     print(f"Using base URL: {base_url}")
     print()
     
-    # Test 1: Health Check
     print("1. Testing Health Check...")
     success, result = check_api_health(base_url)
     if success:
@@ -151,7 +138,6 @@ def main():
         return
     print()
     
-    # Test 2: Demo Data
     print("2. Getting Demo Data...")
     success, result = get_demo_data(base_url)
     if success:
@@ -163,7 +149,6 @@ def main():
         print(f"❌ Demo data failed: {result}")
     print()
     
-    # Test 3: Creator Analysis
     print("3. Testing Creator Analysis...")
     success, result = test_creator_analysis(base_url)
     if success:
@@ -172,7 +157,6 @@ def main():
         print(f"   Revenue Focus Score: {result.get('revenue_focus_score', 0):.3f}")
         print(f"   Recommendations: {len(result.get('recommendations', []))}")
         
-        # Display top recommendations
         recommendations = result.get('recommendations', [])
         if recommendations:
             print("\n   Top Recommendations:")
@@ -186,7 +170,6 @@ def main():
         print(f"❌ Analysis failed: {result}")
     print()
     
-    # Test 4: Algorithm Comparison
     print("4. Testing Algorithm Comparison...")
     success, result = test_algorithm_comparison(base_url)
     if success:
@@ -198,7 +181,6 @@ def main():
         print(f"❌ Algorithm comparison failed: {result}")
     print()
     
-    # Test 5: Weights Configuration
     print("5. Testing Weights Configuration...")
     success, result = test_weights_configuration(base_url)
     if success:

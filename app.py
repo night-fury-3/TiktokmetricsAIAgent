@@ -1,7 +1,3 @@
-"""
-FastAPI Application for TikTok Metrics AI Agent
-"""
-
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
@@ -19,15 +15,12 @@ from src.logger.logger import logger
 from src.processors.kpi_orchestrator import KPIOrchestrator
 from src.processors.recommendation_generator import RecommendationGenerator
 
-
-# Initialize FastAPI app
 app = FastAPI(
     title=settings.app_name,
     version=settings.version,
     description="Professional demo implementation of KPI algorithm optimization and revenue optimization AI pipeline"
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -36,39 +29,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Initialize components
 kpi_orchestrator = KPIOrchestrator()
 recommendation_generator = RecommendationGenerator()
 
-
-# Pydantic models
 class CreatorMetrics(BaseModel):
-    """Creator metrics input model"""
     creator_id: str
     timestamp: Optional[str] = None
     
-    # Sales Performance Metrics
     conversion_rate: Optional[float] = 0.0
     total_revenue: Optional[float] = 0.0
     avg_order_value: Optional[float] = 0.0
     target_revenue: Optional[float] = 10000.0
     target_aov: Optional[float] = 50.0
     
-    # Shop Conversion Metrics
     funnel_completion_rate: Optional[float] = 0.0
     cart_abandonment_rate: Optional[float] = 1.0
     checkout_success_rate: Optional[float] = 0.0
     
-    # TikTok Shop Metrics
     listing_quality: Optional[float] = 0.0
     product_velocity: Optional[float] = 0.0
     integration_seamlessness: Optional[float] = 0.0
     
-    # Engagement Metrics
     likes_ratio: Optional[float] = 0.0
     comments_ratio: Optional[float] = 0.0
     shares_ratio: Optional[float] = 0.0
@@ -76,54 +60,45 @@ class CreatorMetrics(BaseModel):
     avg_watch_time: Optional[float] = 0.0
     video_duration: Optional[float] = 30.0
     
-    # Growth Metrics
     engagement_growth_rate: Optional[float] = 0.0
     follower_growth_rate: Optional[float] = 0.0
     views_growth_rate: Optional[float] = 0.0
     
-    # Discovery Metrics
     hashtag_performance: Optional[float] = 0.0
     search_visibility: Optional[float] = 0.0
     recommendation_rate: Optional[float] = 0.0
     viral_potential: Optional[float] = 0.0
     
-    # Content Strategy Metrics
     video_quality: Optional[float] = 0.0
     content_freshness: Optional[float] = 0.0
     posting_consistency: Optional[float] = 0.0
     content_diversity: Optional[float] = 0.0
     
-    # Audience Fit Metrics
     target_demographic_match: Optional[float] = 0.0
     audience_engagement_quality: Optional[float] = 0.0
     follower_quality_score: Optional[float] = 0.0
     audience_retention: Optional[float] = 0.0
     
-    # Brand Fit Metrics
     brand_alignment: Optional[float] = 0.0
     trust_score: Optional[float] = 0.0
     authenticity_score: Optional[float] = 0.0
     brand_consistency: Optional[float] = 0.0
     
-    # Trend Fit Metrics
     trend_alignment: Optional[float] = 0.0
     timing_score: Optional[float] = 0.0
     trend_relevance: Optional[float] = 0.0
     
-    # Image Quality Metrics
     image_quality: Optional[float] = 0.0
     lighting_score: Optional[float] = 0.0
     composition_score: Optional[float] = 0.0
     color_balance: Optional[float] = 0.0
     
-    # Reach Metrics
     total_reach: Optional[float] = 0.0
     unique_viewers: Optional[float] = 0.0
     impression_rate: Optional[float] = 0.0
     visibility_score: Optional[float] = 0.0
     target_reach: Optional[float] = 10000.0
     
-    # Cost Efficiency Metrics
     cost_per_acquisition: Optional[float] = 100.0
     cost_per_engagement: Optional[float] = 1.0
     cost_per_view: Optional[float] = 0.1
@@ -132,9 +107,7 @@ class CreatorMetrics(BaseModel):
     target_cpe: Optional[float] = 0.5
     target_cpv: Optional[float] = 0.05
 
-
 class AnalysisResponse(BaseModel):
-    """Analysis response model"""
     success: bool
     creator_id: str
     overall_score: float
@@ -146,23 +119,16 @@ class AnalysisResponse(BaseModel):
     insights: Dict[str, Any]
     timestamp: str
 
-
-# API Endpoints
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    """Serve the interactive dashboard"""
     return templates.TemplateResponse("dashboard.html", {"request": request, "base_url": settings.base_url})
-
 
 @app.get("/weights", response_class=HTMLResponse)
 async def weights_visualization():
-    """Serve the weights visualization page"""
     return FileResponse("templates/weights_visualization.html")
-
 
 @app.get("/weights/api", response_class=JSONResponse)
 async def get_weights_api():
-    """Get weights data as JSON for API consumption"""
     return {
         "weights": settings.KPI_WEIGHTS,
         "tier_breakdown": {
@@ -182,10 +148,8 @@ async def get_weights_api():
         "algorithm_description": "Multi-tier weighted algorithm prioritizing e-commerce revenue"
     }
 
-
 @app.get("/api", response_class=HTMLResponse)
 async def api_docs():
-    """API documentation page"""
     html_content = """
     <!DOCTYPE html>
     <html>
@@ -279,10 +243,8 @@ async def api_docs():
     """
     return HTMLResponse(content=html_content)
 
-
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {
         "status": "healthy",
         "service": settings.app_name,
@@ -290,29 +252,17 @@ async def health_check():
         "timestamp": datetime.now().isoformat()
     }
 
-
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_creator_metrics(metrics: CreatorMetrics):
-    """
-    Analyze creator metrics and generate recommendations
-    
-    This endpoint implements the optimized KPI algorithm and AI recommendation pipeline
-    """
     try:
-        # Convert Pydantic model to dictionary
         data = metrics.dict()
         
-        # Add timestamp if not provided
         if not data.get("timestamp"):
             data["timestamp"] = datetime.now().isoformat()
         
-        # Calculate overall score using optimized algorithm
         kpi_analysis = kpi_orchestrator.calculate_overall_score(data)
-        
-        # Generate recommendations using AI pipeline
         recommendations = recommendation_generator.generate_recommendations(data)
         
-        # Prepare response
         response = AnalysisResponse(
             success=True,
             creator_id=metrics.creator_id,
@@ -333,12 +283,8 @@ async def analyze_creator_metrics(metrics: CreatorMetrics):
         logger.error(f"Error analyzing creator metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/compare-algorithms")
 async def compare_algorithms(metrics: CreatorMetrics):
-    """
-    Compare the new optimized algorithm with the old equal weighting approach
-    """
     try:
         data = metrics.dict()
         comparison = kpi_orchestrator.compare_with_equal_weighting(data)
@@ -354,32 +300,24 @@ async def compare_algorithms(metrics: CreatorMetrics):
         logger.error(f"Error comparing algorithms: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/demo-data")
 async def get_demo_data():
-    """
-    Get sample data for testing the API
-    """
     demo_data = {
         "creator_id": "demo_creator_001",
         "timestamp": datetime.now().isoformat(),
         
-        # Sales Performance (Tier 1)
-        "conversion_rate": 0.05,  # 5%
+        "conversion_rate": 0.05,
         "total_revenue": 5000.0,
         "avg_order_value": 45.0,
         
-        # Shop Conversion (Tier 1)
         "funnel_completion_rate": 0.3,
-        "cart_abandonment_rate": 0.7,  # High abandonment
+        "cart_abandonment_rate": 0.7,
         "checkout_success_rate": 0.8,
         
-        # TikTok Shop (Tier 1)
         "listing_quality": 0.6,
         "product_velocity": 0.4,
         "integration_seamlessness": 0.7,
         
-        # Engagement (Tier 2)
         "likes_ratio": 0.7,
         "comments_ratio": 0.15,
         "shares_ratio": 0.15,
@@ -387,53 +325,44 @@ async def get_demo_data():
         "avg_watch_time": 20.0,
         "video_duration": 30.0,
         
-        # Growth (Tier 2)
         "engagement_growth_rate": 0.1,
         "follower_growth_rate": 0.05,
         "views_growth_rate": 0.15,
         
-        # Discovery (Tier 2)
         "hashtag_performance": 0.4,
         "search_visibility": 0.3,
         "recommendation_rate": 0.02,
         "viral_potential": 0.5,
         
-        # Content Strategy (Tier 2)
-        "video_quality": 0.3,  # Low quality
+        "video_quality": 0.3,
         "content_freshness": 0.6,
         "posting_consistency": 0.7,
         "content_diversity": 0.5,
         
-        # Audience Fit (Tier 2)
         "target_demographic_match": 0.6,
         "audience_engagement_quality": 0.5,
         "follower_quality_score": 0.4,
         "audience_retention": 0.6,
         
-        # Brand Fit (Tier 2)
         "brand_alignment": 0.7,
         "trust_score": 0.6,
         "authenticity_score": 0.8,
         "brand_consistency": 0.5,
         
-        # Trend Fit (Tier 3)
         "trend_alignment": 0.4,
         "timing_score": 0.5,
         "trend_relevance": 0.6,
         
-        # Image Quality (Tier 3)
-        "image_quality": 0.3,  # Low quality
+        "image_quality": 0.3,
         "lighting_score": 0.4,
         "composition_score": 0.5,
         "color_balance": 0.6,
         
-        # Reach (Tier 3)
         "total_reach": 5000.0,
         "unique_viewers": 4000.0,
         "impression_rate": 0.03,
         "visibility_score": 0.5,
         
-        # Cost Efficiency (Tier 3)
         "cost_per_acquisition": 80.0,
         "cost_per_engagement": 0.8,
         "cost_per_view": 0.08,
@@ -446,7 +375,6 @@ async def get_demo_data():
         "description": "Sample creator data with various performance levels for testing"
     }
 
-
 if __name__ == "__main__":
     uvicorn.run(
         "app:app",
@@ -458,5 +386,4 @@ if __name__ == "__main__":
 
 @app.get("/test-weights", response_class=HTMLResponse)
 async def test_weights():
-    """Test page for weights API"""
     return FileResponse("templates/test_weights.html")

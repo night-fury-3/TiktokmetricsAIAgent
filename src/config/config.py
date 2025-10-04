@@ -1,45 +1,30 @@
-"""
-Configuration settings for TikTok Metrics AI Agent
-"""
-
 from typing import Dict, List
 from pydantic_settings import BaseSettings
 
-
 class Settings(BaseSettings):
-    """Application settings"""
-    
-    # API Settings - These will be loaded from .env file
     app_name: str = "TikTok Metrics AI Agent"
     version: str = "1.0.0"
     debug: bool = False
-    base_url: str  # Will be loaded from BASE_URL in .env
-    api_host: str  # Will be loaded from API_HOST in .env
-    api_port: int  # Will be loaded from API_PORT in .env
+    base_url: str
+    api_host: str
+    api_port: int
     
-    # KPI Weights Configuration (Task 1 - Optimized Weights)
     KPI_WEIGHTS: Dict[str, float] = {
-        # Tier 1: Direct Revenue Drivers (55% total)
         "sales_performance_scorer": 0.30,
         "shop_conversion_scorer": 0.15,
         "tiktok_shop_scorer": 0.10,
-        
-        # Tier 2: Revenue Enablers (32% total)
         "engagement_scorer": 0.10,
         "engagement_growth_scorer": 0.05,
         "discovery_scorer": 0.04,
         "content_strategy_scorer": 0.06,
         "audience_fit_scorer": 0.04,
         "brand_fit_scorer": 0.03,
-        
-        # Tier 3: General Health/Cost/Reach (13% total)
         "trend_fit_scorer": 0.04,
         "image_score_scorer": 0.03,
         "reach_visibility_scorer": 0.03,
         "cost_efficiency_scorer": 0.03,
     }
     
-    # KPI Categories for analysis
     TIER_1_KPIS: List[str] = [
         "sales_performance_scorer",
         "shop_conversion_scorer", 
@@ -62,18 +47,15 @@ class Settings(BaseSettings):
         "cost_efficiency_scorer"
     ]
     
-    # Revenue-focused KPIs for diagnostic model
     REVENUE_KPIS: List[str] = [
         "sales_performance_scorer",
         "tiktok_shop_scorer",
         "shop_conversion_scorer"
     ]
     
-    # Model Configuration
     MODEL_RETRAIN_FREQUENCY_DAYS: int = 30
     MIN_SAMPLES_FOR_TRAINING: int = 100
     
-    # Recommendation Engine Configuration
     MAX_RECOMMENDATIONS: int = 3
     MIN_CONFIDENCE_THRESHOLD: float = 0.7
     
@@ -81,6 +63,4 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
 
-
-# Global settings instance
 settings = Settings()

@@ -1,38 +1,22 @@
-"""
-Image Score Scorer - Tier 3 (General Health/Cost/Reach)
-Weight: 0.03 (3%)
-"""
-
 from typing import Dict, Any
 from .base_scorer import BaseScorer
 
-
 class ImageScoreScorer(BaseScorer):
-    """
-    Calculates image quality score based on visual metrics
-    """
-    
     def __init__(self, weight: float = 0.03):
         super().__init__("image_score_scorer", weight)
     
     def calculate_score(self, data: Dict[str, Any]) -> float:
-        """
-        Calculate image quality score
-        """
         try:
-            # Extract visual metrics
             image_quality = data.get('image_quality', 0.0)
             lighting_score = data.get('lighting_score', 0.0)
             composition_score = data.get('composition_score', 0.0)
             color_balance = data.get('color_balance', 0.0)
             
-            # Calculate component scores
             quality = self.normalize_score(image_quality, 0.0, 1.0)
             lighting = self.normalize_score(lighting_score, 0.0, 1.0)
             composition = self.normalize_score(composition_score, 0.0, 1.0)
             color = self.normalize_score(color_balance, 0.0, 1.0)
             
-            # Weighted combination
             score = (
                 quality * 0.4 +
                 lighting * 0.3 +
@@ -48,9 +32,6 @@ class ImageScoreScorer(BaseScorer):
             return 0.0
     
     def get_components(self, data: Dict[str, Any]) -> Dict[str, float]:
-        """
-        Get detailed component scores
-        """
         image_quality = data.get('image_quality', 0.0)
         lighting_score = data.get('lighting_score', 0.0)
         composition_score = data.get('composition_score', 0.0)

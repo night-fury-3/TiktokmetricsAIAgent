@@ -1,38 +1,22 @@
-"""
-Audience Fit Scorer - Tier 2 (Revenue Enabler)
-Weight: 0.04 (4%)
-"""
-
 from typing import Dict, Any
 from .base_scorer import BaseScorer
 
-
 class AudienceFitScorer(BaseScorer):
-    """
-    Calculates audience fit score based on target audience alignment
-    """
-    
     def __init__(self, weight: float = 0.04):
         super().__init__("audience_fit_scorer", weight)
     
     def calculate_score(self, data: Dict[str, Any]) -> float:
-        """
-        Calculate audience fit score
-        """
         try:
-            # Extract audience metrics
             target_demographic_match = data.get('target_demographic_match', 0.0)
             audience_engagement_quality = data.get('audience_engagement_quality', 0.0)
             follower_quality_score = data.get('follower_quality_score', 0.0)
             audience_retention = data.get('audience_retention', 0.0)
             
-            # Calculate component scores
             demographic_score = self.normalize_score(target_demographic_match, 0.0, 1.0)
             engagement_quality_score = self.normalize_score(audience_engagement_quality, 0.0, 1.0)
             follower_quality = self.normalize_score(follower_quality_score, 0.0, 1.0)
             retention_score = self.normalize_score(audience_retention, 0.0, 1.0)
             
-            # Weighted combination
             score = (
                 demographic_score * 0.3 +
                 engagement_quality_score * 0.3 +
@@ -48,9 +32,6 @@ class AudienceFitScorer(BaseScorer):
             return 0.0
     
     def get_components(self, data: Dict[str, Any]) -> Dict[str, float]:
-        """
-        Get detailed component scores
-        """
         target_demographic_match = data.get('target_demographic_match', 0.0)
         audience_engagement_quality = data.get('audience_engagement_quality', 0.0)
         follower_quality_score = data.get('follower_quality_score', 0.0)

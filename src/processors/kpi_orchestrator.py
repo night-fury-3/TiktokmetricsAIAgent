@@ -1,7 +1,3 @@
-"""
-KPI Orchestrator - Implements the optimized OverallScore algorithm
-"""
-
 from typing import Dict, Any, List, Tuple
 import numpy as np
 from src.config.config import settings
@@ -13,17 +9,10 @@ from src.processors.scorers import (
     TrendFitScorer, ImageScoreScorer, ReachVisibilityScorer, CostEfficiencyScorer
 )
 
-
 class KPIOrchestrator:
-    """
-    Orchestrates all KPI scorers and implements the optimized OverallScore algorithm
-    """
-    
     def __init__(self):
-        """Initialize the KPI orchestrator with all scorers"""
         self.logger = logger
         
-        # Initialize all scorers with their optimized weights
         self.scorers = {
             "sales_performance_scorer": SalesPerformanceScorer(settings.KPI_WEIGHTS["sales_performance_scorer"]),
             "shop_conversion_scorer": ShopConversionScorer(settings.KPI_WEIGHTS["shop_conversion_scorer"]),
@@ -43,15 +32,6 @@ class KPIOrchestrator:
         self.logger.info("KPI Orchestrator initialized with optimized weights")
     
     def calculate_overall_score(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Calculate the optimized OverallScore using the new weighted algorithm
-        
-        Args:
-            data: Input data dictionary containing all metrics
-            
-        Returns:
-            Dictionary containing overall score and detailed breakdown
-        """
         try:
             scores = {}
             weighted_scores = {}
@@ -59,7 +39,6 @@ class KPIOrchestrator:
             tier_scores = {"tier_1": 0.0, "tier_2": 0.0, "tier_3": 0.0}
             tier_weights = {"tier_1": 0.0, "tier_2": 0.0, "tier_3": 0.0}
             
-            # Calculate individual KPI scores
             for scorer_name, scorer in self.scorers.items():
                 score = scorer.calculate_score(data)
                 weighted_score = scorer.calculate_weighted_score(data)
@@ -69,7 +48,6 @@ class KPIOrchestrator:
                 weighted_scores[scorer_name] = weighted_score
                 components[scorer_name] = component_scores
                 
-                # Categorize by tier
                 if scorer_name in settings.TIER_1_KPIS:
                     tier_scores["tier_1"] += weighted_score
                     tier_weights["tier_1"] += scorer.weight
@@ -80,10 +58,8 @@ class KPIOrchestrator:
                     tier_scores["tier_3"] += weighted_score
                     tier_weights["tier_3"] += scorer.weight
             
-            # Calculate overall score (sum of weighted scores)
             overall_score = sum(weighted_scores.values())
             
-            # Calculate tier averages
             tier_averages = {}
             for tier in ["tier_1", "tier_2", "tier_3"]:
                 if tier_weights[tier] > 0:
@@ -91,13 +67,11 @@ class KPIOrchestrator:
                 else:
                     tier_averages[tier] = 0.0
             
-            # Identify performance levels
             performance_levels = {
                 scorer_name: scorer.get_performance_level(score)
                 for scorer_name, score in scores.items()
             }
             
-            # Calculate revenue focus score (Tier 1 only)
             revenue_focus_score = tier_averages["tier_1"]
             
             result = {
@@ -143,26 +117,16 @@ class KPIOrchestrator:
             }
     
     def get_revenue_optimization_insights(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Get insights for revenue optimization based on the new algorithm
-        
-        Args:
-            data: Input data dictionary
-            
-        Returns:
-            Dictionary containing optimization insights
-        """
         try:
             result = self.calculate_overall_score(data)
             
-            # Identify low-performing revenue drivers
             revenue_kpis = settings.REVENUE_KPIS
             low_performance_kpis = []
             
             for kpi in revenue_kpis:
                 if kpi in result["individual_scores"]:
                     score = result["individual_scores"][kpi]
-                    if score < 0.3:  # Low performance threshold
+                    if score < 0.3:
                         low_performance_kpis.append({
                             "kpi": kpi,
                             "score": score,
@@ -170,10 +134,8 @@ class KPIOrchestrator:
                             "impact": score * settings.KPI_WEIGHTS[kpi]
                         })
             
-            # Sort by impact (score * weight)
             low_performance_kpis.sort(key=lambda x: x["impact"], reverse=True)
             
-            # Calculate potential improvement
             current_revenue_score = result["revenue_focus_score"]
             max_possible_revenue_score = sum(settings.KPI_WEIGHTS[kpi] for kpi in revenue_kpis)
             improvement_potential = max_possible_revenue_score - current_revenue_score
@@ -183,7 +145,7 @@ class KPIOrchestrator:
                 "max_possible_revenue_score": max_possible_revenue_score,
                 "improvement_potential": improvement_potential,
                 "low_performance_kpis": low_performance_kpis,
-                "priority_actions": low_performance_kpis[:3],  # Top 3 priorities
+                "priority_actions": low_performance_kpis[:3],
                 "tier_performance": result["tier_scores"],
                 "overall_performance": result["overall_score"]
             }
@@ -195,20 +157,9 @@ class KPIOrchestrator:
             return {"error": str(e)}
     
     def compare_with_equal_weighting(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Compare the new weighted algorithm with the old equal weighting approach
-        
-        Args:
-            data: Input data dictionary
-            
-        Returns:
-            Dictionary containing comparison results
-        """
         try:
-            # Calculate with new weights
             new_result = self.calculate_overall_score(data)
             
-            # Calculate with equal weights (old approach)
             equal_weight = 1.0 / len(self.scorers)
             equal_weighted_scores = []
             
@@ -218,7 +169,6 @@ class KPIOrchestrator:
             
             equal_weighted_score = sum(equal_weighted_scores)
             
-            # Calculate difference
             score_difference = new_result["overall_score"] - equal_weighted_score
             percentage_change = (score_difference / equal_weighted_score * 100) if equal_weighted_score > 0 else 0
             
